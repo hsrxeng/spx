@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아마존 & 이집트 탐험</title>
+    <title>아마존 & 이집트 탐험: 어댑티브 믹스</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
         body { font-family: 'Jua', sans-serif; transition: background 0.5s; overflow-x: hidden; }
+        
+        /* [이미지 변경 지점: 배경 이미지] */
         .bg-jungle { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
         .bg-desert { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
+        
         #opponent-img { transition: all 0.5s ease-in-out; }
         .btn-bounce:active { transform: scale(0.95); }
+        .card-appear { animation: fadeInUp 0.5s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
@@ -24,39 +29,42 @@
             <div class="bg-slate-800/80 p-6 rounded-2xl w-full border border-slate-700">
                 <p class="text-lg mb-4">📅 현재: <span id="week-num" class="text-yellow-400">1</span>주차 탐험 기간</p>
                 <div id="region-buttons" class="grid grid-cols-1 gap-4">
-                    <!-- 데이터 분석 결과에 따라 버튼이 나타납니다 -->
                     <button id="btn-jungle" onclick="handleRegionSelect('jungle')" class="hidden bg-emerald-600 hover:bg-emerald-500 p-5 rounded-xl text-2xl shadow-lg btn-bounce transition-all">🌿 아마존 정글</button>
                     <button id="btn-desert" onclick="handleRegionSelect('desert')" class="hidden bg-orange-600 hover:bg-orange-500 p-5 rounded-xl text-2xl shadow-lg btn-bounce transition-all">🏜️ 이집트 사막</button>
                 </div>
             </div>
-            <p id="status-msg" class="text-sm text-yellow-200 opacity-80 italic">데이터를 불러오고 있습니다...</p>
+            <p id="status-msg" class="text-sm text-yellow-200 opacity-80 italic">지혜의 데이터를 분석하는 중...</p>
         </section>
 
         <!-- [2] 사막 전용: 난이도 선택 화면 -->
         <section id="difficulty-screen" class="hidden flex-1 flex flex-col items-center justify-center space-y-6 text-center">
-            <h2 class="text-3xl text-orange-400 font-bold">🏜️ 난이도를 선택하세요</h2>
+            <h2 class="text-3xl text-orange-400 font-bold">🏜️ 도전 수준을 결정하세요</h2>
+            <p class="text-slate-300">선택한 수준에 맞춰 시련이 섞여 나옵니다.</p>
             <div class="grid grid-cols-1 gap-4 w-full">
-                <button onclick="startGame('desert', 'low')" class="bg-slate-700 p-4 rounded-xl text-xl border-b-4 border-green-500 active:scale-95">모래언덕 (Easy)</button>
-                <button onclick="startGame('desert', 'mid')" class="bg-slate-700 p-4 rounded-xl text-xl border-b-4 border-yellow-500 active:scale-95">피라미드 (Normal)</button>
-                <button onclick="startGame('desert', 'high')" class="bg-slate-700 p-4 rounded-xl text-xl border-b-4 border-red-500 active:scale-95">스만큼스 사원 (Hard)</button>
+                <button onclick="startGame('desert', 'low')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-green-500 active:scale-95">모래언덕 (하: 쉬움+중간)</button>
+                <button onclick="startGame('desert', 'mid')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-yellow-500 active:scale-95">피라미드 (중: 골고루 혼합)</button>
+                <button onclick="startGame('desert', 'high')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-red-500 active:scale-95">스만큼스 사원 (상: 어려움 위주)</button>
             </div>
-            <button onclick="showPort()" class="text-slate-400 underline mt-4">뒤로 가기</button>
+            <button onclick="showPort()" class="text-slate-400 underline mt-4">항구로 돌아가기</button>
         </section>
 
         <!-- [3] 전투 화면 -->
         <section id="battle-screen" class="hidden flex-1 flex flex-col pt-4">
             <div class="flex justify-between items-center bg-black/40 p-3 rounded-full mb-6">
-                <div id="player-hearts" class="text-2xl">❤️❤️❤️</div>
+                <div id="player-hearts" class="text-2xl drop-shadow">❤️❤️❤️</div>
                 <div class="flex-1 mx-4 bg-gray-700 h-4 rounded-full overflow-hidden border border-gray-600">
                     <div id="hp-fill" class="bg-gradient-to-r from-red-500 to-orange-400 h-full transition-all duration-500" style="width: 100%;"></div>
                 </div>
             </div>
             <div class="flex-1 flex flex-col items-center">
                 <div id="opponent-container" class="h-44 flex items-center justify-center mb-4">
-                    <img id="opponent-img" src="" class="h-40 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                    <img id="opponent-img" src="" class="h-40 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
                 </div>
-                <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl w-full flex-1 mb-4 flex flex-col overflow-y-auto">
-                    <span id="q-topic" class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full w-fit mb-2"></span>
+                <div id="q-card" class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl w-full flex-1 mb-4 flex flex-col overflow-y-auto card-appear">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="q-topic" class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full"></span>
+                        <span id="q-diff-badge" class="text-[10px] font-bold px-2 py-0.5 rounded border"></span>
+                    </div>
                     <h2 id="q-prompt" class="text-lg font-bold mb-4 leading-tight text-slate-900"></h2>
                     <div id="q-options" class="grid grid-cols-1 gap-2 mt-auto"></div>
                 </div>
@@ -65,16 +73,16 @@
 
         <!-- [4] 보상 화면 -->
         <section id="reward-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
-            <h2 class="text-4xl font-bold mb-2 text-yellow-400 font-bold">MISSION CLEAR!</h2>
+            <h2 class="text-4xl font-bold mb-2 text-yellow-400">MISSION CLEAR!</h2>
             <div id="chest-container" onclick="openChest()" class="cursor-pointer hover:scale-110 transition-transform active:rotate-3">
                 <img id="chest-img" src="" class="h-56 drop-shadow-2xl">
             </div>
-            <p class="mt-8 text-yellow-200 animate-pulse text-lg font-bold">상자를 터치하여 보물을 얻으세요!</p>
+            <p class="mt-8 text-yellow-200 animate-pulse text-lg font-bold">상자를 터치하여 채집하세요!</p>
         </section>
     </div>
 
     <script>
-        // 이미지 설정
+        /* --- [이미지 및 아이콘 자산 설정] --- */
         const ASSETS = {
             sphinx: "https://cdn-icons-png.flaticon.com/512/3141/3141381.png",
             jaguar: "https://cdn-icons-png.flaticon.com/512/1998/1998713.png",
@@ -84,37 +92,51 @@
             desertOpen: "https://cdn-icons-png.flaticon.com/512/2855/2855573.png"
         };
 
-        // 보상 데이터
+        /* --- [보상 아이템 및 플레이버 텍스트 설정] --- */
         const REWARDS = {
             jungle: [
-                { name: "재규어", text: "아마존의 수호자!" }, { name: "분홍강돌고래", text: "지혜로운 보토!" },
-                { name: "금강앵무", text: "승리의 노래!" }, { name: "카피바라", text: "친절한 친구!" },
-                { name: "자이언트수달", text: "강물의 용사!" }, { name: "부채머리독수리", text: "날카로운 지혜!" },
-                { name: "검정카이만", text: "고요한 힘!" }, { name: "나무늘보", text: "여유로운 복습!" },
-                { name: "투칸", text: "밝은 미래!" }, { name: "독개구리", text: "강력한 지식!" }
+                { name: "재규어", text: "아마존의 수호자 재규어가 당신의 용기를 인정했습니다!" }, 
+                { name: "분홍강돌고래", text: "지혜로운 보토가 신비한 강물의 기운을 나눠줍니다." },
+                { name: "금강앵무", text: "화려한 깃털을 가진 앵무새가 당신의 성적을 노래합니다!" }, 
+                { name: "카피바라", text: "세상에서 가장 친절한 카피바라와 친구가 되었습니다." },
+                { name: "자이언트수달", text: "강물의 용사 수달이 당신의 끈기를 칭찬합니다!" }, 
+                { name: "부채머리독수리", text: "날카로운 눈매로 다음 문제의 정답을 꿰뚫어봅니다." },
+                { name: "검정카이만", text: "정글의 고요한 지배자 카이만의 힘이 깃듭니다." }, 
+                { name: "나무늘보", text: "가끔은 천천히, 복습하는 여유를 주는 친구입니다." },
+                { name: "투칸", text: "화려한 부리만큼 당신의 앞날도 밝게 빛날 것입니다." }, 
+                { name: "화살독개구리", text: "작지만 치명적인 지식의 힘을 갖게 되었습니다!" }
             ],
             desert: [
-                { name: "루비", text: "태양의 열정!" }, { name: "사파이어", text: "지혜의 푸른 빛!" },
-                { name: "에메랄드", text: "생명의 신비!" }, { name: "황금 카르투슈", text: "행운의 이름표!" },
-                { name: "사막의 장미", text: "인내의 결정체!" }, { name: "오닉스", text: "단단한 마음!" },
-                { name: "터키석", text: "수호의 보석!" }, { name: "자수정", text: "고귀한 정신력!" },
-                { name: "라피스 라줄리", text: "밤하늘의 지혜!" }, { name: "호박", text: "시간의 화석!" }
+                { name: "루비", text: "태양의 뜨거운 열정을 품은 보석입니다." }, 
+                { name: "사파이어", text: "지혜로운 자만이 가질 수 있는 푸른 보물입니다." },
+                { name: "에메랄드", text: "생명의 신비가 담긴 영롱한 초록빛 보석입니다." }, 
+                { name: "황금 카르투슈", text: "고대 왕의 이름이 새겨진 행운의 상징입니다." },
+                { name: "사막의 장미", text: "인내와 시간이 만들어낸 기적의 결정체입니다." }, 
+                { name: "블랙 오닉스", text: "어떤 유혹에도 흔들리지 않는 단단한 마음을 줍니다." },
+                { name: "터키석", text: "여행자의 앞길을 지켜주는 수호의 보석입니다." }, 
+                { name: "자수정", text: "고귀하고 신비로운 정신력을 상징하는 보석입니다." },
+                { name: "라피스 라줄리", text: "밤하늘의 지혜를 담은 고대의 푸른 보석입니다." }, 
+                { name: "호박", text: "수천 년의 시간을 견뎌낸 지식의 화석입니다." }
             ]
         };
 
+        // --- [게임 상태 변수] ---
         let state = {
-            allData: [], sessionQuestions: [],
-            region: '', hearts: 3, hp: 100, currentIdx: 0, week: 1
+            allData: [],
+            pools: { low: [], mid: [], high: [] }, // 난이도별 주머니
+            sessionQuestions: [],
+            region: '', hearts: 3, hp: 100, currentIdx: 0, week: 1,
+            hintGiven: false
         };
 
-        // 스마트 로드 기능: JSON 내용을 분석하여 지역 버튼 활성화
+        // --- [스마트 로드 및 카테고리 분류] ---
         async function smartLoadData() {
             const params = new URLSearchParams(window.location.search);
             const dataUrl = params.get('data');
             const statusMsg = document.getElementById('status-msg');
 
             if (!dataUrl) {
-                statusMsg.innerHTML = "⚠️ 주소창 끝에 <br><b>?data=Gist링크</b>를 넣어주세요.";
+                statusMsg.innerHTML = "⚠️ 주소창 끝에 <br><b>?data=Gist주소</b>를 넣어주세요.";
                 return;
             }
 
@@ -124,7 +146,12 @@
                 state.week = res[0]?.week || 1;
                 document.getElementById('week-num').innerText = state.week;
 
-                // 키워드 분석
+                // 난이도별로 주머니(Pool)에 나누기
+                state.pools.low = res.filter(q => q.difficulty === 'low');
+                state.pools.mid = res.filter(q => q.difficulty === 'mid');
+                state.pools.high = res.filter(q => q.difficulty === 'high');
+
+                // 지역별 버튼 활성화 로직
                 const jungleKeywords = ['어휘', '단어', '숙어', '속담', 'voca', 'word'];
                 const desertKeywords = ['지문', '문법', '어법', '이해', 'grammar', 'text'];
 
@@ -136,7 +163,7 @@
 
                 statusMsg.innerText = "✅ 탐험 준비가 완료되었습니다!";
             } catch (e) {
-                statusMsg.innerText = "❌ 데이터를 불러오지 못했습니다. Gist 링크를 확인하세요.";
+                statusMsg.innerText = "❌ 로드 실패. Gist 데이터 문법을 확인하세요.";
             }
         }
 
@@ -152,27 +179,41 @@
                 document.getElementById('port-screen').classList.add('hidden');
                 document.getElementById('difficulty-screen').classList.remove('hidden');
             } else {
-                startGame('jungle', null);
+                startGame('jungle', 'low'); // 정글은 하위 난이도 위주 시작
             }
         }
 
-        function startGame(region, difficulty) {
+        // [핵심] 난이도 믹스 로직
+        function startGame(region, selectedDiff) {
             state.region = region;
-            let filtered = [];
+            let session = [];
 
-            if (region === 'jungle') {
-                const jungleKeywords = ['어휘', '단어', '숙어', '속담', 'voca', 'word'];
-                filtered = state.allData.filter(q => jungleKeywords.some(k => q.topic?.includes(k)));
-            } else {
-                filtered = state.allData.filter(q => q.difficulty === difficulty);
+            const getRandom = (arr, n) => {
+                let shuffled = [...arr].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, n);
+            };
+
+            // 추천 확률 로직 적용 (5문제 구성)
+            if (selectedDiff === 'low') {
+                session.push(...getRandom(state.pools.low, 4), ...getRandom(state.pools.mid, 1));
+            } else if (selectedDiff === 'mid') {
+                session.push(...getRandom(state.pools.low, 1), ...getRandom(state.pools.mid, 3), ...getRandom(state.pools.high, 1));
+            } else { // high
+                session.push(...getRandom(state.pools.mid, 1), ...getRandom(state.pools.high, 4));
             }
 
-            if (filtered.length < 5) filtered = [...state.allData];
+            // 만약 주머니가 비어있는 경우(데이터 부족)를 대비한 Fallback
+            if (session.length < 5) {
+                session = getRandom(state.allData, 5);
+            }
+
+            // 1번 문제는 중간 난이도 이하로 배치하고 나머지는 랜덤 섞기
+            state.sessionQuestions = session.sort(() => 0.5 - Math.random());
             
-            state.sessionQuestions = filtered.sort(() => 0.5 - Math.random()).slice(0, 5);
             state.hearts = 3;
             state.currentIdx = 0;
             state.hp = 100;
+            state.hintGiven = false;
 
             document.body.className = (region === 'jungle') ? 'bg-jungle' : 'bg-desert';
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
@@ -183,18 +224,35 @@
         function renderQuestion() {
             const q = state.sessionQuestions[state.currentIdx];
             const img = document.getElementById('opponent-img');
+            const card = document.getElementById('q-card');
             
+            // 카드 애니메이션 재실행
+            card.classList.remove('card-appear');
+            void card.offsetWidth; 
+            card.classList.add('card-appear');
+
             if (state.region === 'jungle') {
                 img.src = ASSETS.jaguar;
+                // 정글: 마지막 문제에서만 수호령 재규어 등장
                 img.style.opacity = (state.currentIdx === state.sessionQuestions.length - 1) ? "1" : "0";
             } else {
+                // 사막: 스핑크스 상시 등장
                 img.src = ASSETS.sphinx;
                 img.style.opacity = "1";
             }
 
             document.getElementById('player-hearts').innerText = "❤️".repeat(state.hearts);
             document.getElementById('hp-fill').style.width = `${state.hp}%`;
-            document.getElementById('q-topic').innerText = q.topic || "탐험";
+            document.getElementById('q-topic').innerText = q.topic || "심화 탐험";
+            
+            // 난이도 배지 표시
+            const badge = document.getElementById('q-diff-badge');
+            badge.innerText = q.difficulty.toUpperCase();
+            badge.className = `text-[10px] font-bold px-2 py-0.5 rounded border ${
+                q.difficulty === 'low' ? 'text-green-600 border-green-200' : 
+                q.difficulty === 'mid' ? 'text-yellow-600 border-yellow-200' : 'text-red-600 border-red-200'
+            }`;
+
             document.getElementById('q-prompt').innerText = q.prompt;
 
             const opts = document.getElementById('q-options');
@@ -210,8 +268,18 @@
 
         function checkAnswer(isCorrect, explanation) {
             if (isCorrect) {
-                state.hp -= (100 / state.sessionQuestions.length);
+                // 정답 시 데미지 계산 (난이도 가중치: low=18, mid=20, high=24)
+                const q = state.sessionQuestions[state.currentIdx];
+                let dmg = 20;
+                if(q.difficulty === 'low') dmg = 18;
+                if(q.difficulty === 'high') dmg = 24;
+
+                state.hp -= dmg;
+                if (state.hp < 0) state.hp = 0;
+                
                 state.currentIdx++;
+                state.hintGiven = false;
+
                 if (state.currentIdx >= state.sessionQuestions.length) {
                     state.hp = 0;
                     document.getElementById('hp-fill').style.width = "0%";
@@ -220,13 +288,22 @@
                     renderQuestion();
                 }
             } else {
-                state.hearts--;
-                if (state.hearts <= 0) {
-                    alert("⚠️ 패배했습니다. 항구로 돌아가 다시 준비하세요!");
-                    location.reload();
+                // 오답 시 세이프티 룰: 힌트 먼저 보여주기
+                if (!state.hintGiven) {
+                    alert(`💡 [도움말] 힌트를 확인하고 다시 풀어보세요!\n\n${explanation}`);
+                    state.hintGiven = true;
                 } else {
-                    alert(`💡 힌트:\n${explanation}`);
-                    renderQuestion();
+                    state.hearts--;
+                    if (state.hearts <= 0) {
+                        alert("⚠️ 패배! 기력을 모두 소진하여 항구로 강제 귀환합니다.");
+                        location.reload();
+                    } else {
+                        alert("틀렸습니다! 하트가 1개 줄어듭니다.");
+                        state.hintGiven = false;
+                        state.currentIdx++; // 오답 시 다음 문제로 이동
+                        if (state.currentIdx >= state.sessionQuestions.length) showReward();
+                        else renderQuestion();
+                    }
                 }
             }
         }
