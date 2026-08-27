@@ -8,10 +8,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
         body { font-family: 'Jua', sans-serif; transition: background 0.5s; overflow-x: hidden; }
-        /* [배경 이미지 변경 지점] */
         .bg-jungle { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
         .bg-desert { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
         #opponent-img { transition: all 0.5s ease-in-out; }
+        .btn-bounce:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
@@ -24,12 +24,12 @@
             <div class="bg-slate-800/80 p-6 rounded-2xl w-full border border-slate-700">
                 <p class="text-lg mb-4">📅 현재: <span id="week-num" class="text-yellow-400">1</span>주차 탐험 기간</p>
                 <div id="region-buttons" class="grid grid-cols-1 gap-4">
-                    <!-- 스마트 감지에 의해 버튼이 동적으로 나타납니다 -->
-                    <button id="btn-jungle" onclick="handleRegionSelect('jungle')" class="hidden bg-emerald-600 p-5 rounded-xl text-2xl shadow-lg active:scale-95 transition">🌿 아마존 정글</button>
-                    <button id="btn-desert" onclick="handleRegionSelect('desert')" class="hidden bg-orange-600 p-5 rounded-xl text-2xl shadow-lg active:scale-95 transition">🏜️ 이집트 사막</button>
+                    <!-- 데이터 분석 결과에 따라 버튼이 나타납니다 -->
+                    <button id="btn-jungle" onclick="handleRegionSelect('jungle')" class="hidden bg-emerald-600 hover:bg-emerald-500 p-5 rounded-xl text-2xl shadow-lg btn-bounce transition-all">🌿 아마존 정글</button>
+                    <button id="btn-desert" onclick="handleRegionSelect('desert')" class="hidden bg-orange-600 hover:bg-orange-500 p-5 rounded-xl text-2xl shadow-lg btn-bounce transition-all">🏜️ 이집트 사막</button>
                 </div>
             </div>
-            <p id="status-msg" class="text-sm text-yellow-200 opacity-80 italic">데이터를 분석하는 중...</p>
+            <p id="status-msg" class="text-sm text-yellow-200 opacity-80 italic">데이터를 불러오고 있습니다...</p>
         </section>
 
         <!-- [2] 사막 전용: 난이도 선택 화면 -->
@@ -40,7 +40,7 @@
                 <button onclick="startGame('desert', 'mid')" class="bg-slate-700 p-4 rounded-xl text-xl border-b-4 border-yellow-500 active:scale-95">피라미드 (Normal)</button>
                 <button onclick="startGame('desert', 'high')" class="bg-slate-700 p-4 rounded-xl text-xl border-b-4 border-red-500 active:scale-95">스만큼스 사원 (Hard)</button>
             </div>
-            <button onclick="showPort()" class="text-slate-400 underline">뒤로 가기</button>
+            <button onclick="showPort()" class="text-slate-400 underline mt-4">뒤로 가기</button>
         </section>
 
         <!-- [3] 전투 화면 -->
@@ -57,7 +57,7 @@
                 </div>
                 <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-2xl w-full flex-1 mb-4 flex flex-col overflow-y-auto">
                     <span id="q-topic" class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full w-fit mb-2"></span>
-                    <h2 id="q-prompt" class="text-lg font-bold mb-4 leading-tight"></h2>
+                    <h2 id="q-prompt" class="text-lg font-bold mb-4 leading-tight text-slate-900"></h2>
                     <div id="q-options" class="grid grid-cols-1 gap-2 mt-auto"></div>
                 </div>
             </div>
@@ -65,16 +65,16 @@
 
         <!-- [4] 보상 화면 -->
         <section id="reward-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
-            <h2 class="text-4xl font-bold mb-2 text-yellow-400">MISSION CLEAR!</h2>
+            <h2 class="text-4xl font-bold mb-2 text-yellow-400 font-bold">MISSION CLEAR!</h2>
             <div id="chest-container" onclick="openChest()" class="cursor-pointer hover:scale-110 transition-transform active:rotate-3">
                 <img id="chest-img" src="" class="h-56 drop-shadow-2xl">
             </div>
-            <p class="mt-8 text-yellow-200 animate-pulse text-lg font-bold">상자를 터치하여 채집하세요!</p>
+            <p class="mt-8 text-yellow-200 animate-pulse text-lg font-bold">상자를 터치하여 보물을 얻으세요!</p>
         </section>
     </div>
 
     <script>
-        /* --- [주석: 이미지 및 아이콘 변경 지점] --- */
+        // 이미지 설정
         const ASSETS = {
             sphinx: "https://cdn-icons-png.flaticon.com/512/3141/3141381.png",
             jaguar: "https://cdn-icons-png.flaticon.com/512/1998/1998713.png",
@@ -84,14 +84,14 @@
             desertOpen: "https://cdn-icons-png.flaticon.com/512/2855/2855573.png"
         };
 
-        /* --- [주석: 수집품 및 플레이버 텍스트 변경 지점] --- */
+        // 보상 데이터
         const REWARDS = {
             jungle: [
-                { name: "재규어", text: "아마존의 수호자!" }, { name: "분홍강돌고래", text: "지혜로운 보토의 기운!" },
+                { name: "재규어", text: "아마존의 수호자!" }, { name: "분홍강돌고래", text: "지혜로운 보토!" },
                 { name: "금강앵무", text: "승리의 노래!" }, { name: "카피바라", text: "친절한 친구!" },
                 { name: "자이언트수달", text: "강물의 용사!" }, { name: "부채머리독수리", text: "날카로운 지혜!" },
                 { name: "검정카이만", text: "고요한 힘!" }, { name: "나무늘보", text: "여유로운 복습!" },
-                { name: "투칸", text: "빛나는 미래!" }, { name: "독개구리", text: "강력한 지식!" }
+                { name: "투칸", text: "밝은 미래!" }, { name: "독개구리", text: "강력한 지식!" }
             ],
             desert: [
                 { name: "루비", text: "태양의 열정!" }, { name: "사파이어", text: "지혜의 푸른 빛!" },
@@ -104,18 +104,17 @@
 
         let state = {
             allData: [], sessionQuestions: [],
-            region: '', hearts: 3, hp: 100, currentIdx: 0, week: 1,
-            availableRegions: { jungle: false, desert: false }
+            region: '', hearts: 3, hp: 100, currentIdx: 0, week: 1
         };
 
-        // [스마트 데이터 로드] JSON 내용을 분석하여 지역 버튼을 활성화합니다.
+        // 스마트 로드 기능: JSON 내용을 분석하여 지역 버튼 활성화
         async function smartLoadData() {
             const params = new URLSearchParams(window.location.search);
             const dataUrl = params.get('data');
             const statusMsg = document.getElementById('status-msg');
 
             if (!dataUrl) {
-                statusMsg.innerText = "⚠️ URL 뒤에 ?data=Gist주소를 넣어주세요.";
+                statusMsg.innerHTML = "⚠️ 주소창 끝에 <br><b>?data=Gist링크</b>를 넣어주세요.";
                 return;
             }
 
@@ -125,25 +124,19 @@
                 state.week = res[0]?.week || 1;
                 document.getElementById('week-num').innerText = state.week;
 
-                // 키워드 분석으로 버튼 활성화 여부 결정
+                // 키워드 분석
                 const jungleKeywords = ['어휘', '단어', '숙어', '속담', 'voca', 'word'];
                 const desertKeywords = ['지문', '문법', '어법', '이해', 'grammar', 'text'];
 
-                state.availableRegions.jungle = res.some(q => jungleKeywords.some(k => q.topic?.includes(k)));
-                state.availableRegions.desert = res.some(q => desertKeywords.some(k => q.topic?.includes(k)));
+                const hasJungle = res.some(q => jungleKeywords.some(k => q.topic?.includes(k)));
+                const hasDesert = res.some(q => desertKeywords.some(k => q.topic?.includes(k)));
 
-                // 만약 키워드로 분류가 안 된다면 전체 공개 (예외 처리)
-                if (!state.availableRegions.jungle && !state.availableRegions.desert) {
-                    state.availableRegions.jungle = true;
-                    state.availableRegions.desert = true;
-                }
+                if (hasJungle || (!hasJungle && !hasDesert)) document.getElementById('btn-jungle').classList.remove('hidden');
+                if (hasDesert || (!hasJungle && !hasDesert)) document.getElementById('btn-desert').classList.remove('hidden');
 
-                if (state.availableRegions.jungle) document.getElementById('btn-jungle').classList.remove('hidden');
-                if (state.availableRegions.desert) document.getElementById('btn-desert').classList.remove('hidden');
-
-                statusMsg.innerText = "✅ 탐험 준비 완료!";
+                statusMsg.innerText = "✅ 탐험 준비가 완료되었습니다!";
             } catch (e) {
-                statusMsg.innerText = "❌ 데이터 로드 실패. Raw 링크인지 확인하세요.";
+                statusMsg.innerText = "❌ 데이터를 불러오지 못했습니다. Gist 링크를 확인하세요.";
             }
         }
 
@@ -171,16 +164,12 @@
                 const jungleKeywords = ['어휘', '단어', '숙어', '속담', 'voca', 'word'];
                 filtered = state.allData.filter(q => jungleKeywords.some(k => q.topic?.includes(k)));
             } else {
-                // 사막 + 난이도 필터링
                 filtered = state.allData.filter(q => q.difficulty === difficulty);
             }
 
-            // 필터링 결과가 부족하면 전체에서 랜덤 추출 (안정성)
             if (filtered.length < 5) filtered = [...state.allData];
             
-            // 무작위 5문제 세션 구성
             state.sessionQuestions = filtered.sort(() => 0.5 - Math.random()).slice(0, 5);
-            
             state.hearts = 3;
             state.currentIdx = 0;
             state.hp = 100;
@@ -197,10 +186,8 @@
             
             if (state.region === 'jungle') {
                 img.src = ASSETS.jaguar;
-                // 정글: 마지막 문제에서만 수호령 재규어 등장
                 img.style.opacity = (state.currentIdx === state.sessionQuestions.length - 1) ? "1" : "0";
             } else {
-                // 사막: 스핑크스 상시 등장
                 img.src = ASSETS.sphinx;
                 img.style.opacity = "1";
             }
@@ -235,7 +222,7 @@
             } else {
                 state.hearts--;
                 if (state.hearts <= 0) {
-                    alert("⚠️ 패배! 항구로 강제 귀환합니다.");
+                    alert("⚠️ 패배했습니다. 항구로 돌아가 다시 준비하세요!");
                     location.reload();
                 } else {
                     alert(`💡 힌트:\n${explanation}`);
