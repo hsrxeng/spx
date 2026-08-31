@@ -3,59 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아마존 & 이집트 탐험: 렐릭 마스터</title>
+    <title>렐릭 마스터: 사막의 유산</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
         body { font-family: 'Jua', sans-serif; transition: background 0.5s; overflow-x: hidden; }
         
-        .bg-jungle { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
+        .bg-jungle { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
         .bg-desert { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=800&q=80'); background-size: cover; }
         
-        #opponent-img { transition: all 0.5s ease-in-out; }
-        .card-appear { animation: fadeInUp 0.5s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .relic-locked { filter: grayscale(1) brightness(0.3); }
+        /* 애니메이션 */
+        .chest-shake { animation: shake 0.5s infinite; }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+        
+        .screen-shake { animation: screenShake 0.4s; }
+        @keyframes screenShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateY(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateY(5px); } }
+
+        /* 등급별 테두리 */
+        .border-normal { border: 2px solid #4ade80; } 
+        .border-rare { border: 2px solid #60a5fa; box-shadow: 0 0 10px #60a5fa; }
+        .border-epic { border: 3px solid #c084fc; box-shadow: 0 0 15px #c084fc; animation: pulse 2s infinite; }
+        .border-legendary { border: 4px solid #facc15; box-shadow: 0 0 25px #facc15; animation: glow 1.5s infinite alternate; }
+        
+        /* 중복 획득 강화 (Mastery) */
+        .mastery-1 { outline: 2px dashed #ffffff; outline-offset: 2px; } /* 2회 이상 */
+        .mastery-2 { outline: 3px double #facc15; outline-offset: 4px; } /* 5회 이상 */
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes glow { from { box-shadow: 0 0 5px #facc15; } to { box-shadow: 0 0 25px #facc15; } }
+        
+        .relic-locked { filter: grayscale(1) brightness(0.2); opacity: 0.4; }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen">
 
-    <div id="game-app" class="max-w-md mx-auto min-h-screen flex flex-col p-4">
+    <div id="game-app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 relative">
         
         <!-- [1] 항구 / 메인 화면 -->
         <section id="port-screen" class="flex-1 flex flex-col items-center justify-center space-y-6 text-center">
             <h1 class="text-5xl text-yellow-500 drop-shadow-lg mb-2">⚓ 탐험가의 항구</h1>
             <div class="bg-slate-800/80 p-5 rounded-2xl w-full border border-slate-700 shadow-xl">
-                <p class="text-sm mb-4 opacity-70">매주 새로운 지혜와 렐릭을 찾아 떠나세요!</p>
                 <div id="region-buttons" class="grid grid-cols-1 gap-4">
-                    <button id="btn-jungle" onclick="handleRegionSelect('jungle')" class="hidden bg-emerald-600 p-5 rounded-xl text-2xl shadow-lg active:scale-95 transition">🌿 아마존 정글<br><span class="text-sm font-normal opacity-80">(항로탐색중)</span></button>
+                    <!-- 정글 버튼 잠금 상태 -->
+                    <button id="btn-jungle" onclick="alert('아직 항로 준비 중입니다! 현재는 사막 탐험만 가능합니다.')" class="bg-emerald-900/40 p-5 rounded-xl text-2xl opacity-50 relative group cursor-not-allowed">
+                        🌿 아마존 정글<br><span class="text-xs font-normal">(항로 준비중)</span>
+                        <div class="hidden group-hover:flex absolute inset-0 bg-black/70 rounded-xl items-center justify-center text-sm text-yellow-400">아직 갈 수 없는 곳입니다</div>
+                    </button>
                     <button id="btn-desert" onclick="handleRegionSelect('desert')" class="hidden bg-orange-600 p-5 rounded-xl text-2xl shadow-lg active:scale-95 transition">🏜️ 이집트 사막</button>
                 </div>
             </div>
-            <button onclick="showCollection()" class="bg-blue-600/50 hover:bg-blue-600 px-6 py-3 rounded-full border border-blue-400 text-lg transition">📜 나의 렐릭 도감 보기</button>
-            <p id="status-msg" class="text-xs text-yellow-200 opacity-60">데이터를 감지하는 중...</p>
+            <button onclick="showCollection()" class="bg-blue-600/50 hover:bg-blue-600 px-6 py-3 rounded-full border border-blue-400 text-lg transition shadow-lg">📜 나의 렐릭 도감</button>
+            <p id="status-msg" class="text-xs text-yellow-200 opacity-60 italic">데이터 로딩 중...</p>
         </section>
 
-        <!-- [2] 단원 선택 화면 (사막/정글 공통) -->
+        <!-- [2] 단원 선택 -->
         <section id="unit-screen" class="hidden flex-1 flex flex-col items-center justify-center space-y-6 text-center">
-            <button onclick="showPort()" class="absolute top-6 left-6 text-slate-400">◀ 뒤로가기</button>
-            <h2 id="unit-title" class="text-3xl text-yellow-400 font-bold">📜 탐험할 단원 선택</h2>
+            <button onclick="showPort()" class="absolute top-6 left-6 text-slate-400">◀ 항구로</button>
+            <h2 class="text-3xl text-yellow-400 font-bold">📜 탐험 단원 선택</h2>
             <div class="grid grid-cols-2 gap-4 w-full">
-                <button onclick="handleUnitSelect(1)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl">1단원</button>
-                <button onclick="handleUnitSelect(2)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl">2단원</button>
-                <button onclick="handleUnitSelect(3)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl">3단원</button>
-                <button onclick="handleUnitSelect(4)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl">4단원</button>
+                <button onclick="handleUnitSelect(1)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl shadow-md">1단원<br><span class="text-xs font-normal opacity-60">(동물보호)</span></button>
+                <button onclick="handleUnitSelect(2)" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 hover:border-yellow-500 text-xl shadow-md">2단원<br><span class="text-xs font-normal opacity-60">(다크패턴)</span></button>
+                <button id="unit-lock-3" class="bg-slate-900/50 p-6 rounded-xl border-2 border-slate-800 text-slate-600 text-xl cursor-not-allowed">3단원<br>🔒</button>
+                <button id="unit-lock-4" class="bg-slate-900/50 p-6 rounded-xl border-2 border-slate-800 text-slate-600 text-xl cursor-not-allowed">4단원<br>🔒</button>
             </div>
         </section>
 
-        <!-- [3] 사막 전용: 난이도 선택 화면 -->
+        <!-- [3] 난이도 선택 -->
         <section id="difficulty-screen" class="hidden flex-1 flex flex-col items-center justify-center space-y-6 text-center">
-            <button onclick="showUnitSelect()" class="absolute top-6 left-6 text-slate-400">◀ 뒤로가기</button>
-            <h2 class="text-3xl text-orange-400 font-bold">🏜️ 도전 수준 결정</h2>
+            <button onclick="showUnitSelect()" class="absolute top-6 left-6 text-slate-400">◀ 뒤로</button>
+            <h2 class="text-3xl text-orange-400 font-bold">🏜️ 시련의 난이도</h2>
             <div class="grid grid-cols-1 gap-4 w-full">
-                <button onclick="startGame('desert', 'low')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-green-500">모래언덕 (하)</button>
-                <button onclick="startGame('desert', 'mid')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-yellow-500">피라미드 (중)</button>
-                <button onclick="startGame('desert', 'high')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-red-500">스만큼스 사원 (상)</button>
+                <button onclick="startGame('low')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-green-500 shadow-lg active:scale-95 transition">모래언덕 (하)</button>
+                <button onclick="startGame('mid')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-yellow-500 shadow-lg active:scale-95 transition">피라미드 (중)</button>
+                <button onclick="startGame('high')" class="bg-slate-700 p-5 rounded-xl text-xl border-b-4 border-red-500 shadow-lg active:scale-95 transition">스만큼스 사원 (상)</button>
             </div>
         </section>
 
@@ -68,115 +89,131 @@
                 </div>
             </div>
             <div class="flex-1 flex flex-col items-center">
-                <div id="opponent-container" class="h-40 flex items-center justify-center mb-4">
-                    <img id="opponent-img" src="" class="h-36 object-contain">
-                </div>
-                <div id="q-card" class="bg-white text-slate-800 p-5 rounded-2xl shadow-2xl w-full flex-1 mb-4 flex flex-col overflow-y-auto card-appear">
-                    <div class="flex justify-between items-center mb-2">
-                        <span id="q-topic" class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
-                        <span id="q-diff-badge" class="text-[10px] font-bold px-2 py-0.5 rounded border"></span>
+                <img id="opponent-img" src="https://cdn-icons-png.flaticon.com/512/3141/3141381.png" class="h-36 object-contain mb-4">
+                <div id="q-card" class="bg-white text-slate-800 p-5 rounded-2xl shadow-2xl w-full flex-1 mb-4 flex flex-col overflow-y-auto">
+                    <div class="flex justify-between items-center mb-1">
+                        <span id="q-topic" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"></span>
+                        <span id="q-diff" class="text-[10px] font-bold px-2 border rounded"></span>
                     </div>
-                    <h2 id="q-prompt" class="text-base font-bold mb-4 leading-tight text-slate-900"></h2>
+                    <h2 id="q-prompt" class="text-base font-bold mb-4 text-slate-900"></h2>
                     <div id="q-options" class="grid grid-cols-1 gap-2 mt-auto"></div>
                 </div>
             </div>
         </section>
 
-        <!-- [5] 도감 화면 -->
-        <section id="collection-screen" class="hidden flex-1 flex flex-col">
-            <button onclick="showPort()" class="absolute top-6 left-6 text-slate-400 font-bold">◀ 돌아가기</button>
-            <h2 class="text-3xl text-blue-400 font-bold text-center mt-12 mb-6 border-b border-blue-900 pb-2">📜 나의 렐릭 도감</h2>
-            <div id="relic-grid" class="grid grid-cols-3 gap-3 overflow-y-auto p-2">
-                <!-- 렐릭 아이템들이 JS로 생성됩니다 -->
+        <!-- [5] 보상 화면 -->
+        <section id="reward-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
+            <h2 id="reward-title" class="text-4xl font-bold mb-2 text-yellow-400">MISSION CLEAR</h2>
+            <div id="chest-container" onclick="handleChestClick()" class="cursor-pointer transition-transform relative">
+                <div id="light-aura" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-0 transition-opacity duration-1000"></div>
+                <img id="chest-img" src="https://cdn-icons-png.flaticon.com/512/2855/2855521.png" class="h-52 relative z-10">
             </div>
+            <p id="reward-msg" class="mt-6 text-yellow-200 animate-pulse text-lg">상자를 터치하여 렐릭을 발굴하세요!</p>
         </section>
 
-        <!-- [6] 보상 화면 -->
-        <section id="reward-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
-            <h2 class="text-4xl font-bold mb-2 text-yellow-400">MISSION CLEAR!</h2>
-            <div id="chest-container" onclick="openChest()" class="cursor-pointer hover:scale-110 transition-transform">
-                <img id="chest-img" src="" class="h-52 drop-shadow-2xl">
+        <!-- [6] 도감 화면 -->
+        <section id="collection-screen" class="hidden flex-1 flex flex-col">
+            <button onclick="showPort()" class="absolute top-6 left-6 text-slate-400 font-bold">◀ 돌아가기</button>
+            <div class="mt-12 mb-4 flex justify-between items-end border-b border-blue-900 pb-2">
+                <h2 class="text-2xl text-blue-400 font-bold">📜 렐릭 도감</h2>
+                <span id="collection-progress" class="text-xs text-yellow-500 font-bold">진행률: 0%</span>
             </div>
-            <p class="mt-6 text-yellow-200 animate-pulse text-lg">상자를 터치하여 렐릭을 얻으세요!</p>
+            <div id="relic-list-container" class="flex-1 overflow-y-auto p-1 space-y-8 pb-10">
+                <!-- JS 생성 -->
+            </div>
         </section>
     </div>
 
     <script>
-        const ASSETS = {
-            sphinx: "https://cdn-icons-png.flaticon.com/512/3141/3141381.png",
-            jaguar: "https://cdn-icons-png.flaticon.com/512/1998/1998713.png",
-            jungleChest: "https://cdn-icons-png.flaticon.com/512/2926/2926861.png",
-            desertChest: "https://cdn-icons-png.flaticon.com/512/2855/2855521.png",
-            jungleOpen: "https://cdn-icons-png.flaticon.com/512/2926/2926852.png",
-            desertOpen: "https://cdn-icons-png.flaticon.com/512/2855/2855573.png"
-        };
-
-        const REWARDS = {
-            jungle: [
-                { id: 'j1', name: "재규어", text: "아마존의 수호자!", img: "https://cdn-icons-png.flaticon.com/512/1998/1998713.png" },
-                { id: 'j2', name: "분홍돌고래", text: "지혜로운 보토!", img: "https://cdn-icons-png.flaticon.com/512/2628/2628834.png" },
-                { id: 'j3', name: "금강앵무", text: "승리의 노래!", img: "https://cdn-icons-png.flaticon.com/512/3062/3062326.png" },
-                { id: 'j4', name: "카피바라", text: "친절한 친구!", img: "https://cdn-icons-png.flaticon.com/512/3519/3519302.png" },
-                { id: 'j5', name: "수달", text: "강물의 용사!", img: "https://cdn-icons-png.flaticon.com/512/3195/3195593.png" }
+        // [데이터] 1, 2단원 전용 렐릭 세트 (각 20개씩 총 40개)
+        const RELICS_DATA = {
+    // [데이터] 플레이버 텍스트가 포함된 렐릭 데이터베이스
+        const RELICS_DATA = {
+            1: [ // 1단원: 동물 보호구역 테마
+                {id:'d1_n1', name:'부드러운 나뭇잎', rarity:'normal', desc:'구조된 아기 사슴이 가장 좋아하던 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/892/892926.png'},
+                {id:'d1_n2', name:'자원봉사 조끼', rarity:'normal', desc:'땀과 보람이 배어있는 낡은 조끼입니다.', img:'https://cdn-icons-png.flaticon.com/512/2503/2503223.png'},
+                {id:'d1_n3', name:'사료 주머니', rarity:'normal', desc:'동물들의 배고픔을 달래주던 소중한 주머니입니다.', img:'https://cdn-icons-png.flaticon.com/512/616/616456.png'},
+                {id:'d1_n4', name:'구조용 밧줄', rarity:'normal', desc:'위험에 빠진 동물을 끌어올릴 때 쓰던 튼튼한 줄입니다.', img:'https://cdn-icons-png.flaticon.com/512/1243/1243936.png'},
+                {id:'d1_n5', name:'물그릇', rarity:'normal', desc:'탈수된 새들에게 생명수가 되어준 그릇입니다.', img:'https://cdn-icons-png.flaticon.com/512/3002/3002651.png'},
+                {id:'d1_n6', name:'청소용 빗자루', rarity:'normal', desc:'깨끗한 서식지를 위해 매일 아침 휘둘렀던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/911/911678.png'},
+                {id:'d1_n7', name:'방문객 출입증', rarity:'normal', desc:'보호구역의 평화를 약속한 사람만 가질 수 있는 증표입니다.', img:'https://cdn-icons-png.flaticon.com/512/2912/2912444.png'},
+                {id:'d1_n8', name:'아기동물 발자국', rarity:'normal', desc:'건강하게 회복한 동물이 남기고 간 기분 좋은 흔적입니다.', img:'https://cdn-icons-png.flaticon.com/512/1077/1077196.png'},
+                {id:'d1_r1', name:'희귀 조류 깃털', rarity:'rare', desc:'하늘을 다시 날게 된 새가 고마움의 표시로 남긴 선물입니다.', img:'https://cdn-icons-png.flaticon.com/512/4843/4843075.png'},
+                {id:'d1_r2', name:'구급 상자', rarity:'rare', desc:'상처받은 영혼까지 치료해주던 신비한 약상자입니다.', img:'https://cdn-icons-png.flaticon.com/512/2966/2966327.png'},
+                {id:'d1_r3', name:'탐험용 망원경', rarity:'rare', desc:'멀리 있는 동물의 상태를 살필 때 쓰던 정교한 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/618/618820.png'},
+                {id:'d1_r4', name:'서식지 지도', rarity:'rare', desc:'모든 동물이 자유롭게 뛰어노는 낙원의 설계도입니다.', img:'https://cdn-icons-png.flaticon.com/512/854/854878.png'},
+                {id:'d1_r5', name:'보호구역 뱃지', rarity:'rare', desc:'진정한 생명 수호자에게만 수여되는 명예로운 뱃지입니다.', img:'https://cdn-icons-png.flaticon.com/512/3135/3135868.png'},
+                {id:'d1_r6', name:'코끼리 상아 파편', rarity:'rare', desc:'힘겨운 시간을 이겨낸 늙은 코끼리의 강인함이 담겨있습니다.', img:'https://cdn-icons-png.flaticon.com/512/2275/2275141.png'},
+                {id:'d1_e1', name:'바스텟 조각상', rarity:'epic', desc:'동물의 안녕을 지켜주는 고대 이집트 풍요의 여신상입니다.', img:'https://cdn-icons-png.flaticon.com/512/1553/1553878.png'},
+                {id:'d1_e2', name:'푸른 스카라베', rarity:'epic', desc:'태양의 운행과 생명의 재생을 상징하는 신성한 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039494.png'},
+                {id:'d1_e3', name:'황금 사탕수수', rarity:'epic', desc:'늙은 코끼리 몰리가 가장 아끼던 전설의 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039474.png'},
+                {id:'d1_e4', name:'수의사의 일지', rarity:'epic', desc:'동물과 교감하는 비법이 적혀있는 신비로운 노정입니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
+                {id:'d1_l1', name:'아누비스의 저울', rarity:'legendary', desc:'진실과 거짓을 가려내어 생명을 보호하는 신의 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/4397/4397368.png'},
+                {id:'d1_l2', name:'호루스의 수호안', rarity:'legendary', desc:'모든 생명체를 악으로부터 지켜주는 전설적인 문양입니다.', img:'https://cdn-icons-png.flaticon.com/512/3141/3141381.png'}
             ],
-            desert: [
-                { id: 'd1', name: "루비", text: "태양의 열정!", img: "https://cdn-icons-png.flaticon.com/512/1039/1039474.png" },
-                { id: 'd2', name: "사파이어", text: "지혜의 빛!", img: "https://cdn-icons-png.flaticon.com/512/1039/1039487.png" },
-                { id: 'd3', name: "에메랄드", text: "생명의 신비!", img: "https://cdn-icons-png.flaticon.com/512/1039/1039494.png" },
-                { id: 'd4', name: "카르투슈", text: "행운의 이름표!", img: "https://cdn-icons-png.flaticon.com/512/4397/4397368.png" },
-                { id: 'd5', name: "사막장미", text: "인내의 결정!", img: "https://cdn-icons-png.flaticon.com/512/1553/1553878.png" }
+            2: [ // 2단원: 다크 패턴 / 경제 테마
+                {id:'d2_n1', name:'구겨진 영수증', rarity:'normal', desc:'충동구매의 흔적이 담긴 씁쓸한 종이 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/1611/1611174.png'},
+                {id:'d2_n2', name:'할인 스티커', rarity:'normal', desc:'우리의 눈을 가렸던 유혹적인 빨간색 스티커입니다.', img:'https://cdn-icons-png.flaticon.com/512/2522/2522204.png'},
+                {id:'d2_n3', name:'빈 장바구니', rarity:'normal', desc:'의도하지 않은 물건은 담지 않겠다는 굳은 의지의 상징입니다.', img:'https://cdn-icons-png.flaticon.com/512/1170/1170678.png'},
+                {id:'d2_n4', name:'동전 주머니', rarity:'normal', desc:'다크 패턴으로부터 지켜낸 소중한 금전적 가치입니다.', img:'https://cdn-icons-png.flaticon.com/512/218/218353.png'},
+                {id:'d2_n5', name:'마우스 포인터', rarity:'normal', desc:'속임수 버튼을 피해 정답을 찾아가던 당신의 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/1792/1692873.png'},
+                {id:'d2_n6', name:'광고 팝업 조각', rarity:'normal', desc:'시야를 방해하던 짜증나는 팝업창을 부수고 얻은 파편입니다.', img:'https://cdn-icons-png.flaticon.com/512/1265/1265775.png'},
+                {id:'d2_n7', name:'만료 경고장', rarity:'normal', desc:'사용자를 불안하게 만들던 교활한 문구가 적힌 종이입니다.', img:'https://cdn-icons-png.flaticon.com/512/564/564619.png'},
+                {id:'d2_n8', name:'데이터 조각', rarity:'normal', desc:'유출될 뻔한 개인 정보를 안전하게 회수한 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/2103/2103633.png'},
+                {id:'d2_r1', name:'블랙 신용카드', rarity:'rare', desc:'현명한 소비 습관을 가진 자만이 다룰 수 있는 카드입니다.', img:'https://cdn-icons-png.flaticon.com/512/633/633461.png'},
+                {id:'d2_r2', name:'광고 제거 실드', rarity:'rare', desc:'모든 기만적인 마케팅으로부터 당신을 보호해주는 방패입니다.', img:'https://cdn-icons-png.flaticon.com/512/2092/2092215.png'},
+                {id:'d2_r3', name:'진실의 돋보기', rarity:'rare', desc:'약관 속에 숨겨진 깨알 같은 다크 패턴을 찾아내는 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/158/158740.png'},
+                {id:'d2_r4', name:'디지털 보안 키', rarity:'rare', desc:'당신의 소중한 개인 정보 보관함을 여는 유일한 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/3064/3064197.png'},
+                {id:'d2_r5', name:'상거래법 법전', rarity:'rare', desc:'소비자의 권리를 지켜주는 든든한 지식의 기록입니다.', img:'https://cdn-icons-png.flaticon.com/512/3429/3429149.png'},
+                {id:'d2_r6', name:'기업의 비밀장부', rarity:'rare', desc:'교활한 마케팅 전략이 모두 적혀있는 금지된 기록입니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
+                {id:'d2_e1', name:'황금 장부', rarity:'epic', desc:'정직한 거래만을 기록해온 고대 파라오의 황금 기록물입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039480.png'},
+                {id:'d2_e2', name:'나일강의 보석', rarity:'epic', desc:'탐욕을 버리고 지혜를 얻은 자에게만 허락된 영롱한 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039460.png'},
+                {id:'d2_e3', name:'영원한 계약 펜', rarity:'epic', desc:'한 번 쓰면 돌이킬 수 없는 계약의 무서움을 경고하는 펜입니다.', img:'https://cdn-icons-png.flaticon.com/512/2303/2303914.png'},
+                {id:'d2_e4', name:'디지털 스카라베', rarity:'epic', desc:'온라인 세계의 질서를 바로잡는 수호의 상징입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039487.png'},
+                {id:'d2_l1', name:'라의 진실 구체', rarity:'legendary', desc:'어떤 다크 패턴도 꿰뚫어 보는 태양신 라의 강렬한 빛입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039471.png'},
+                {id:'d2_l2', name:'지혜의 앙크', rarity:'legendary', desc:'올바른 결정을 내리는 영원한 지혜를 주는 고대의 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/1553/1553878.png'}
             ]
         };
 
         let state = {
-            allData: [], pools: { low: [], mid: [], high: [] },
-            sessionQuestions: [], region: '', unit: 1, hearts: 3, hp: 100, currentIdx: 0,
-            hintGiven: false,
-            myRelics: JSON.parse(localStorage.getItem('myRelics')) || []
+            allData: [], sessionQuestions: [],
+            region: '', unit: 1, difficulty: 'low',
+            hearts: 3, hp: 100, currentIdx: 0, hintGiven: false,
+            inventory: JSON.parse(localStorage.getItem('relic_inv_v2')) || {},
+            isChestOpening: false
         };
 
+        // 데이터 로드
         async function smartLoadData() {
             const params = new URLSearchParams(window.location.search);
             const dataUrl = params.get('data');
-            if (!dataUrl) return document.getElementById('status-msg').innerText = "⚠️ ?data=Gist링크 필요";
-
+            if (!dataUrl) { document.getElementById('status-msg').innerText = "⚠️ ?data=GistURL 필요"; return; }
             try {
                 const res = await fetch(dataUrl + '?v=' + Date.now()).then(r => r.json());
                 state.allData = res;
-                
-                const jungleKeywords = ['어휘', '단어', '숙어', '속담', 'voca', 'word'];
-                const desertKeywords = ['지문', '문법', '어법', '이해', 'grammar', 'text'];
-
-                const hasJungle = res.some(q => jungleKeywords.some(k => q.topic?.includes(k)));
-                const hasDesert = res.some(q => desertKeywords.some(k => q.topic?.includes(k)));
-
-                if (hasJungle) document.getElementById('btn-jungle').classList.remove('hidden');
+                const hasDesert = res.some(q => ['지문','문법','어법','이해'].some(k => q.topic?.includes(k)));
                 if (hasDesert) document.getElementById('btn-desert').classList.remove('hidden');
-                document.getElementById('status-msg').innerText = "✅ 탐험 준비 완료!";
-            } catch (e) { document.getElementById('status-msg').innerText = "❌ 데이터 로드 실패."; }
+                document.getElementById('status-msg').innerText = "✅ 사막 항로 개척 완료";
+            } catch (e) { document.getElementById('status-msg').innerText = "❌ 데이터 오류"; }
         }
 
         function showPort() {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('port-screen').classList.remove('hidden');
             document.body.className = 'bg-slate-900';
+            document.body.classList.remove('screen-shake');
         }
 
         function handleRegionSelect(region) {
             state.region = region;
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('unit-screen').classList.remove('hidden');
-            document.getElementById('unit-title').innerText = region === 'jungle' ? "🌿 정글 탐험 구역 선택" : "🏜️ 사막 탐험 단원 선택";
         }
 
         function handleUnitSelect(unit) {
             state.unit = unit;
-            if (state.region === 'desert') {
-                document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-                document.getElementById('difficulty-screen').classList.remove('hidden');
-            } else {
-                startGame('jungle', 'low');
-            }
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('difficulty-screen').classList.remove('hidden');
         }
 
         function showUnitSelect() {
@@ -184,34 +221,36 @@
             document.getElementById('unit-screen').classList.remove('hidden');
         }
 
-        function startGame(region, selectedDiff) {
-            // 필터링: 선택한 단원(unit)에 해당하는 문제만 추출
+        function startGame(diff) {
+            state.difficulty = diff;
             let unitQuestions = state.allData.filter(q => q.unit == state.unit);
-            if (unitQuestions.length === 0) unitQuestions = state.allData; // 데이터 없을 시 전체
+            if(unitQuestions.length === 0) unitQuestions = state.allData;
 
-            const pools = {
-                low: unitQuestions.filter(q => q.difficulty === 'low'),
-                mid: unitQuestions.filter(q => q.difficulty === 'mid'),
-                high: unitQuestions.filter(q => q.difficulty === 'high')
+            const p = {
+                l: unitQuestions.filter(q => q.difficulty === 'low'),
+                m: unitQuestions.filter(q => q.difficulty === 'mid'),
+                h: unitQuestions.filter(q => q.difficulty === 'high')
             };
 
             let session = [];
-            const rnd = (arr, n) => [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
+            const pick = (arr, n) => {
+                if(arr.length === 0) return [];
+                let shuffled = [...arr].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, n);
+            };
 
-            if (selectedDiff === 'low') {
-                session.push(...rnd(pools.low, 4), ...rnd(pools.mid, 1));
-            } else if (selectedDiff === 'mid') {
-                session.push(...rnd(pools.low, 1), ...rnd(pools.mid, 3), ...rnd(pools.high, 1));
-            } else {
-                session.push(...rnd(pools.mid, 1), ...rnd(pools.high, 4));
+            if(diff === 'low') { session.push(...pick(p.l, 4), ...pick(p.m, 1)); }
+            else if(diff === 'mid') { session.push(...pick(p.l, 1), ...pick(p.m, 3), ...pick(p.h, 1)); }
+            else { session.push(...pick(p.m, 1), ...pick(p.h, 4)); }
+
+            // 부족한 만큼 전체에서 보충
+            while(session.length < 5) {
+                session.push(unitQuestions[Math.floor(Math.random() * unitQuestions.length)]);
             }
-
-            if (session.length < 5) session = rnd(unitQuestions, 5);
 
             state.sessionQuestions = session.sort(() => 0.5 - Math.random());
             state.hearts = 3; state.currentIdx = 0; state.hp = 100; state.hintGiven = false;
-
-            document.body.className = (region === 'jungle') ? 'bg-jungle' : 'bg-desert';
+            document.body.className = 'bg-desert';
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('battle-screen').classList.remove('hidden');
             renderQuestion();
@@ -219,32 +258,10 @@
 
         function renderQuestion() {
             const q = state.sessionQuestions[state.currentIdx];
-            const img = document.getElementById('opponent-img');
-            const card = document.getElementById('q-card');
-            
-            card.classList.remove('card-appear');
-            void card.offsetWidth; 
-            card.classList.add('card-appear');
-
-            if (state.region === 'jungle') {
-                img.src = ASSETS.jaguar;
-                img.style.opacity = (state.currentIdx === 4) ? "1" : "0";
-            } else {
-                img.src = ASSETS.sphinx;
-                img.style.opacity = "1";
-            }
-
             document.getElementById('player-hearts').innerText = "❤️".repeat(state.hearts);
             document.getElementById('hp-fill').style.width = `${state.hp}%`;
             document.getElementById('q-topic').innerText = q.topic || "탐험";
-            
-            const badge = document.getElementById('q-diff-badge');
-            badge.innerText = q.difficulty.toUpperCase();
-            badge.className = `text-[10px] font-bold px-2 py-0.5 rounded border ${
-                q.difficulty === 'low' ? 'text-green-600 border-green-200' : 
-                q.difficulty === 'mid' ? 'text-yellow-600 border-yellow-200' : 'text-red-600 border-red-200'
-            }`;
-
+            document.getElementById('q-diff').innerText = q.difficulty.toUpperCase();
             document.getElementById('q-prompt').innerText = q.prompt;
             const opts = document.getElementById('q-options');
             opts.innerHTML = '';
@@ -252,80 +269,111 @@
                 const btn = document.createElement('button');
                 btn.className = "p-3 border-2 border-slate-200 rounded-xl hover:bg-blue-50 text-left font-bold text-slate-700 active:scale-95 transition-all text-sm";
                 btn.innerText = opt;
-                btn.onclick = () => checkAnswer(opt === q.correctAnswer, q.explanation);
+                btn.onclick = () => {
+                    if (opt === q.correctAnswer) {
+                        state.hp -= (q.difficulty === 'low' ? 18 : q.difficulty === 'high' ? 24 : 20);
+                        state.currentIdx++; state.hintGiven = false;
+                        if(state.currentIdx >= 5) { state.hp = 0; renderQuestion(); setTimeout(showReward, 500); }
+                        else renderQuestion();
+                    } else {
+                        if(!state.hintGiven) { alert(`💡 힌트:\n${q.explanation}`); state.hintGiven = true; }
+                        else {
+                            state.hearts--;
+                            if(state.hearts <= 0) { alert("⚠️ 패배! 기력을 잃어 항구로 돌아갑니다."); location.reload(); }
+                            else { alert("오답입니다. 하트 감소!"); state.hintGiven = false; state.currentIdx++; 
+                                   if(state.currentIdx >= 5) showReward(); else renderQuestion(); }
+                        }
+                    }
+                };
                 opts.appendChild(btn);
             });
-        }
-
-        function checkAnswer(isCorrect, explanation) {
-            if (isCorrect) {
-                const q = state.sessionQuestions[state.currentIdx];
-                state.hp -= (q.difficulty === 'low' ? 18 : q.difficulty === 'high' ? 24 : 20);
-                state.currentIdx++;
-                state.hintGiven = false;
-                if (state.currentIdx >= 5) {
-                    state.hp = 0; document.getElementById('hp-fill').style.width = "0%";
-                    setTimeout(showReward, 500);
-                } else renderQuestion();
-            } else {
-                if (!state.hintGiven) {
-                    alert(`💡 힌트:\n${explanation}`);
-                    state.hintGiven = true;
-                } else {
-                    state.hearts--;
-                    if (state.hearts <= 0) {
-                        alert("⚠️ 기력을 잃고 항구로 귀환합니다.");
-                        location.reload();
-                    } else {
-                        alert("오답입니다! 하트 1개 감소.");
-                        state.hintGiven = false; state.currentIdx++;
-                        if (state.currentIdx >= 5) showReward(); else renderQuestion();
-                    }
-                }
-            }
         }
 
         function showReward() {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('reward-screen').classList.remove('hidden');
-            document.getElementById('chest-img').src = (state.region === 'jungle') ? ASSETS.jungleChest : ASSETS.desertChest;
+            document.getElementById('reward-title').innerText = "시련 통과!";
+            document.getElementById('reward-msg').innerText = "상자를 터치하여 렐릭을 얻으세요!";
+            document.getElementById('light-aura').style.opacity = '0';
+            state.isChestOpening = false;
         }
 
-        function openChest() {
-            const pool = REWARDS[state.region];
-            const item = pool[Math.floor(Math.random() * pool.length)];
+        function handleChestClick() {
+            if(state.isChestOpening) return;
+            state.isChestOpening = true;
+            document.getElementById('chest-container').classList.add('chest-shake');
+            setTimeout(determineRelic, 1000);
+        }
+
+        function determineRelic() {
+            document.getElementById('chest-container').classList.remove('chest-shake');
+            const table = { low: [88, 10, 1, 1], mid: [59, 30, 10, 1], high: [30, 50, 15, 5] };
+            const prob = table[state.difficulty];
+            const roll = Math.random() * 100;
+            let rarity = 'normal';
+            if(roll < prob[3]) rarity = 'legendary';
+            else if(roll < prob[3] + prob[2]) rarity = 'epic';
+            else if(roll < prob[3] + prob[2] + prob[1]) rarity = 'rare';
+
+            const pool = RELICS_DATA[state.unit].filter(r => r.rarity === rarity);
+            const relic = pool[Math.floor(Math.random() * pool.length)];
             
-            // 렐릭 저장
-            if (!state.myRelics.includes(item.id)) {
-                state.myRelics.push(item.id);
-                localStorage.setItem('myRelics', JSON.stringify(state.myRelics));
+            // 저장
+            state.inventory[relic.id] = (state.inventory[relic.id] || 0) + 1;
+            localStorage.setItem('relic_inv_v2', JSON.stringify(state.inventory));
+
+            const colors = { normal:'#4ade80', rare:'#60a5fa', epic:'#c084fc', legendary:'#facc15' };
+            const aura = document.getElementById('light-aura');
+            aura.style.backgroundColor = colors[rarity];
+            aura.style.opacity = '1';
+
+            if(rarity === 'legendary') {
+                document.body.classList.add('screen-shake');
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors:['#facc15', '#ffffff'] });
             }
 
-            document.getElementById('chest-img').src = (state.region === 'jungle') ? ASSETS.jungleOpen : ASSETS.desertOpen;
-            setTimeout(() => {
-                alert(`✨ [${item.name}] 획득! ✨\n\n"${item.text}"\n도감에 기록되었습니다.`);
-                location.reload();
-            }, 500);
+           // 연출 및 텍스트 표시
+            document.getElementById('reward-msg').innerHTML = `
+                <div class="bg-white/10 p-4 rounded-xl border-2 border-dashed mt-4 animate-bounce">
+                    <img src="${relic.img}" class="h-20 mx-auto mb-2">
+                    <p class="text-xl font-bold" style="color:${colors[rarity]}">[${rarity.toUpperCase()}]</p>
+                    <p class="text-2xl mb-2">${relic.name}</p>
+                    <p class="text-sm text-slate-300 italic">"${relic.desc}"</p>
+                </div>
+                <button onclick="location.reload()" class="mt-8 bg-yellow-500 text-black px-10 py-3 rounded-full font-bold shadow-xl">항구로 복귀</button>
+            `;
         }
 
         function showCollection() {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            const screen = document.getElementById('collection-screen');
-            screen.classList.remove('hidden');
-            
-            const grid = document.getElementById('relic-grid');
-            grid.innerHTML = '';
-            
-            [...REWARDS.jungle, ...REWARDS.desert].forEach(item => {
-                const isOwned = state.myRelics.includes(item.id);
-                const div = document.createElement('div');
-                div.className = "flex flex-col items-center bg-slate-800 p-3 rounded-xl border border-slate-700";
-                div.innerHTML = `
-                    <img src="${item.img}" class="h-12 w-12 mb-2 ${isOwned ? '' : 'relic-locked'}">
-                    <p class="text-[10px] ${isOwned ? 'text-yellow-400' : 'text-slate-600'}">${isOwned ? item.name : '???'}</p>
-                `;
-                grid.appendChild(div);
+            document.getElementById('collection-screen').classList.remove('hidden');
+            const container = document.getElementById('relic-list-container');
+            container.innerHTML = '';
+            let totalOwned = 0;
+            const totalRelics = 40; // 1, 2단원 합계
+
+            [1, 2].forEach(u => {
+                const section = document.createElement('div');
+                section.innerHTML = `<h3 class="text-orange-300 mb-3 font-bold text-xl px-2">🌵 ${u}단원 사막의 유물</h3>`;
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-4 gap-3 p-2";
+                RELICS_DATA[u].forEach(r => {
+                    const count = state.inventory[r.id] || 0;
+                    if(count > 0) totalOwned++;
+                    const mastery = count >= 5 ? 2 : count >= 2 ? 1 : 0;
+                    const div = document.createElement('div');
+                    div.className = `relative p-2 rounded-lg bg-slate-800 flex flex-col items-center border-${r.rarity} ${count==0?'relic-locked':''} mastery-${mastery}`;
+                    div.innerHTML = `
+                        <img src="${r.img}" class="h-10 w-10">
+                        <span class="text-[9px] mt-1 truncate w-full text-center">${count>0?r.name:'???'}</span>
+                        ${count>1?`<span class="absolute -top-1 -right-1 bg-red-600 text-[10px] px-1.5 rounded-full font-bold">x${count}</span>`:''}
+                    `;
+                    grid.appendChild(div);
+                });
+                section.appendChild(grid);
+                container.appendChild(section);
             });
+            document.getElementById('collection-progress').innerText = `수집률: ${Math.round(totalOwned/totalRelics*100)}%`;
         }
 
         smartLoadData();
