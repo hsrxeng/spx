@@ -169,13 +169,16 @@
             ]
         };
 
-        let state = {
-            allData: [], sessionQuestions: [],
-            region: '', unit: 1, difficulty: 'low',
-            hearts: 3, hp: 100, currentIdx: 0, hintGiven: false,
-            inventory: JSON.parse(localStorage.getItem('relic_inv_v4')) || {},
-            isChestOpening: false
-        };
+   // 찾을 부분: let state = { ... };
+// 아래와 같이 correctCount를 추가하세요. (끝에 쉼표 주의!)
+let state = {
+    allData: [], sessionQuestions: [],
+    region: '', unit: 1, difficulty: 'low',
+    hearts: 3, hp: 100, currentIdx: 0, hintGiven: false,
+    correctCount: 0, // <-- 이 줄을 추가하세요! (쉼표 꼭 확인)
+    inventory: JSON.parse(localStorage.getItem('relic_inv_v4')) || {},
+    isChestOpening: false
+};
 
         async function smartLoadData() {
             const params = new URLSearchParams(window.location.search);
@@ -262,11 +265,29 @@
                 btn.className = "p-3 border-2 border-slate-200 rounded-xl hover:bg-blue-50 text-left font-bold text-slate-700 active:scale-95 transition-all text-sm";
                 btn.innerText = opt;
                 btn.onclick = () => {
-                    if (opt === q.correctAnswer) {
-                        state.hp -= (q.difficulty === 'low' ? 18 : q.difficulty === 'high' ? 24 : 20);
-                        state.currentIdx++; state.hintGiven = false;
-                        if(state.currentIdx >= 5) { state.hp = 0; document.getElementById('hp-fill').style.width = "0%"; setTimeout(showReward, 500); }
-                        else renderQuestion();
+                  if (opt === q.correctAnswer) {
+    // 1. 힌트를 안 봤을 때만 올백 카운트 증가 (리셋하기 전에 먼저 체크!)
+    if (!state.hintGiven) {
+        state.correctCount++;
+    }
+
+    // 2. 데미지 계산 및 적용
+    const damage = (q.difficulty === 'low' ? 18 : q.difficulty === 'high' ? 24 : 20);
+    state.hp -= damage;
+    
+    // 3. 다음 문제 준비 (힌트 상태 리셋)
+    state.currentIdx++;
+    state.hintGiven = false;
+
+    // 4. 종료 체크 또는 다음 문제 출력
+    if (state.currentIdx >= 5) {
+        state.hp = 0;
+        document.getElementById('hp-fill').style.width = "0%";
+        setTimeout(showReward, 500);
+    } else {
+        renderQuestion();
+    }
+}
                     } else {
                         if(!state.hintGiven) { alert(`💡 힌트:\n${q.explanation}`); state.hintGiven = true; }
                         else {
@@ -297,43 +318,59 @@
             setTimeout(determineRelic, 1000);
         }
 
-        function determineRelic() {
-            document.getElementById('chest-container').classList.remove('chest-shake');
-            const table = { low: [88, 10, 1, 1], mid: [59, 30, 10, 1], high: [30, 50, 15, 5] };
-            const prob = table[state.difficulty];
-            const roll = Math.random() * 100;
-            let rarity = 'normal';
-            if(roll < prob[3]) rarity = 'legendary';
-            else if(roll < prob[3] + prob[2]) rarity = 'epic';
-            else if(roll < prob[3] + prob[2] + prob[1]) rarity = 'rare';
+        function determineRelic()  {
+    document.getElementById('chest-container').classList.remove('chest-shake');
+    
+    // 기본 확률표 [Normal, Rare, Epic, Legendary]
+    const table = { low: [88, 10, 1, 1], mid: [59, 30, 10, 1], high: [30, 50, 15, 5] };
+    let prob = [...table[state.difficulty]];
 
-            const pool = RELICS_DATA[state.unit].filter(r => r.rarity === rarity);
-            const relic = pool[Math.floor(Math.random() * pool.length)];
-            
-            state.inventory[relic.id] = (state.inventory[relic.id] || 0) + 1;
-            localStorage.setItem('relic_inv_v4', JSON.stringify(state.inventory));
+    // [핵심] 올백(5문제) 보너스 적용
+    let isPerfect = state.correctCount === 5;
+    if (isPerfect) {
+        prob[2] = prob[2] * 2.5; // 에픽 2.5배
+        prob[3] = prob[3] * 2.0; // 레전더리 2배
+        // 늘어난 확률만큼 일반(Normal) 확률을 깎아서 100%를 맞춤
+        prob[0] = 100 - (prob[1] + prob[2] + prob[3]); 
+    }
 
-            const colors = { normal:'#4ade80', rare:'#60a5fa', epic:'#c084fc', legendary:'#facc15' };
-            const aura = document.getElementById('light-aura');
-            aura.style.backgroundColor = colors[rarity];
-            aura.style.opacity = '1';
+    const roll = Math.random() * 100;
+    let rarity = 'normal';
+    if(roll < prob[3]) rarity = 'legendary';
+    else if(roll < prob[3] + prob[2]) rarity = 'epic';
+    else if(roll < prob[3] + prob[2] + prob[1]) rarity = 'rare';
 
-            if(rarity === 'legendary') {
-                document.body.classList.add('screen-shake');
-                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors:['#facc15', '#ffffff'] });
-            }
+    const pool = RELICS_DATA[state.unit].filter(r => r.rarity === rarity);
+    const relic = pool[Math.floor(Math.random() * pool.length)];
+    
+    state.inventory[relic.id] = (state.inventory[relic.id] || 0) + 1;
+    localStorage.setItem('relic_inv_v4', JSON.stringify(state.inventory));
 
-            document.getElementById('reward-msg').innerHTML = `
-                <div class="bg-white/10 p-4 rounded-xl border-2 border-dashed mt-4 animate-bounce">
-                    <img src="${relic.img}" class="h-20 mx-auto mb-2">
-                    <p class="text-xl font-bold" style="color:${colors[rarity]}">[${rarity.toUpperCase()}]</p>
-                    <p class="text-2xl mb-2">${relic.name}</p>
-                    <p class="text-sm text-slate-300 italic">"${relic.desc}"</p>
-                </div>
-                <button onclick="location.reload()" class="mt-8 bg-yellow-500 text-black px-10 py-3 rounded-full font-bold shadow-xl">항구로 복귀</button>
-            `;
-        }
+    const colors = { normal:'#4ade80', rare:'#60a5fa', epic:'#c084fc', legendary:'#facc15' };
+    const aura = document.getElementById('light-aura');
+    aura.style.backgroundColor = colors[rarity];
+    aura.style.opacity = '1';
 
+    // PERFECT 연출 (화면 흔들림 및 컨페티)
+    if(isPerfect) {
+        confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 }, colors:['#ff0000', '#00ff00', '#ffff00'] });
+    }
+    if(rarity === 'legendary') {
+        document.body.classList.add('screen-shake');
+        confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors:['#facc15', '#ffffff'] });
+    }
+
+    document.getElementById('reward-msg').innerHTML = `
+        ${isPerfect ? '<p class="text-2xl font-bold text-yellow-400 mb-2 animate-bounce">✨ PERFECT CLEAR! 확률 2배 보너스! ✨</p>' : ''}
+        <div class="bg-white/10 p-4 rounded-xl border-2 border-dashed mt-4">
+            <img src="${relic.img}" class="h-20 mx-auto mb-2">
+            <p class="text-xl font-bold" style="color:${colors[rarity]}">[${rarity.toUpperCase()}]</p>
+            <p class="text-2xl mb-2">${relic.name}</p>
+            <p class="text-sm text-slate-300 italic">"${relic.desc}"</p>
+        </div>
+        <button onclick="location.reload()" class="mt-8 bg-yellow-500 text-black px-10 py-3 rounded-full font-bold shadow-xl">항구로 복귀</button>
+    `;
+}
         function showCollection() {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('collection-screen').classList.remove('hidden');
