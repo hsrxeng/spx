@@ -109,51 +109,51 @@
 
     <script>
         const RELICS_DATA = {
-            1: [
-                {id:'d1_n1', name:'부드러운 나뭇잎', rarity:'normal', desc:'아기 사슴이 가장 좋아하던 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/892/892926.png'},
-                {id:'d1_n2', name:'자원봉사 조끼', rarity:'normal', desc:'땀과 보람이 배어있는 낡은 조끼입니다.', img:'https://cdn-icons-png.flaticon.com/512/2503/2503223.png'},
-                {id:'d1_n3', name:'사료 주머니', rarity:'normal', desc:'동물들의 배고픔을 달래주던 주머니입니다.', img:'https://cdn-icons-png.flaticon.com/512/616/616456.png'},
-                {id:'d1_n4', name:'구조용 밧줄', rarity:'normal', desc:'위험에 빠진 동물을 끌어올릴 때 쓰던 줄입니다.', img:'https://cdn-icons-png.flaticon.com/512/1243/1243936.png'},
-                {id:'d1_n5', name:'물그릇', rarity:'normal', desc:'탈수된 새들에게 생명수가 되어준 그릇입니다.', img:'https://cdn-icons-png.flaticon.com/512/3002/3002651.png'},
-                {id:'d1_n6', name:'청소용 빗자루', rarity:'normal', desc:'깨끗한 서식지를 위해 쓰던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/911/911678.png'},
-                {id:'d1_n7', name:'방문객 출입증', rarity:'normal', desc:'평화를 약속한 사람만 가질 수 있는 증표입니다.', img:'https://cdn-icons-png.flaticon.com/512/2912/2912444.png'},
-                {id:'d1_n8', name:'아기동물 발자국', rarity:'normal', desc:'회복한 동물이 남기고 간 기분 좋은 흔적입니다.', img:'https://cdn-icons-png.flaticon.com/512/1077/1077196.png'},
-                {id:'d1_r1', name:'희귀 조류 깃털', rarity:'rare', desc:'고마움의 표시로 남긴 선물입니다.', img:'https://cdn-icons-png.flaticon.com/512/4843/4843075.png'},
-                {id:'d1_r2', name:'구급 상자', rarity:'rare', desc:'상처받은 영혼까지 치료해주던 약상자입니다.', img:'https://cdn-icons-png.flaticon.com/512/2966/2966327.png'},
-                {id:'d1_r3', name:'탐험용 망원경', rarity:'rare', desc:'동물의 상태를 살필 때 쓰던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/618/618820.png'},
-                {id:'d1_r4', name:'서식지 지도', rarity:'rare', desc:'모든 동물이 자유로운 낙원의 설계도입니다.', img:'https://cdn-icons-png.flaticon.com/512/854/854878.png'},
-                {id:'d1_r5', name:'보호구역 뱃지', rarity:'rare', desc:'진정한 생명 수호자에게 수여되는 뱃지입니다.', img:'https://cdn-icons-png.flaticon.com/512/3135/3135868.png'},
-                {id:'d1_r6', name:'코끼리 상아 파편', rarity:'rare', desc:'늙은 코끼리의 강인함이 담겨있습니다.', img:'https://cdn-icons-png.flaticon.com/512/2275/2275141.png'},
-                {id:'d1_e1', name:'바스텟 조각상', rarity:'epic', desc:'동물의 안녕을 지켜주는 여신상입니다.', img:'https://cdn-icons-png.flaticon.com/512/1553/1553878.png'},
-                {id:'d1_e2', name:'푸른 스카라베', rarity:'epic', desc:'재생을 상징하는 신성한 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039494.png'},
-                {id:'d1_e3', name:'황금 사탕수수', rarity:'epic', desc:'코끼리 몰리가 가장 아끼던 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039474.png'},
-                {id:'d1_e4', name:'수의사의 일지', rarity:'epic', desc:'동물과 교감하는 비법이 적혀있습니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
-                {id:'d1_l1', name:'아누비스의 저울', rarity:'legendary', desc:'진실과 거짓을 가려내는 신의 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/4397/4397368.png'},
-                {id:'d1_l2', name:'호루스의 수호안', rarity:'legendary', desc:'모든 생명체를 악으로부터 지켜주는 문양입니다.', img:'https://cdn-icons-png.flaticon.com/512/3141/3141381.png'}
-            ],
-            2: [
-                {id:'d2_n1', name:'구겨진 영수증', rarity:'normal', desc:'충동구매의 흔적이 담긴 종이 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/1611/1611174.png'},
-                {id:'d2_n2', name:'할인 스티커', rarity:'normal', desc:'우리의 눈을 가렸던 유혹적인 스티커입니다.', img:'https://cdn-icons-png.flaticon.com/512/2522/2522204.png'},
-                {id:'d2_n3', name:'빈 장바구니', rarity:'normal', desc:'의도하지 않은 물건은 담지 않겠다는 의지입니다.', img:'https://cdn-icons-png.flaticon.com/512/1170/1170678.png'},
-                {id:'d2_n4', name:'동전 주머니', rarity:'normal', desc:'다크 패턴으로부터 지켜낸 소중한 가치입니다.', img:'https://cdn-icons-png.flaticon.com/512/218/218353.png'},
-                {id:'d2_n5', name:'마우스 포인터', rarity:'normal', desc:'속임수를 피해 정답을 찾아가던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/1792/1692873.png'},
-                {id:'d2_n6', name:'광고 팝업 조각', rarity:'normal', desc:'시야를 방해하던 팝업창을 부순 파편입니다.', img:'https://cdn-icons-png.flaticon.com/512/1265/1265775.png'},
-                {id:'d2_n7', name:'만료 경고장', rarity:'normal', desc:'사용자를 불안하게 만들던 교활한 문구입니다.', img:'https://cdn-icons-png.flaticon.com/512/564/564619.png'},
-                {id:'d2_n8', name:'데이터 조각', rarity:'normal', desc:'유출될 뻔한 개인 정보를 회수한 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/2103/2103633.png'},
-                {id:'d2_r1', name:'블랙 신용카드', rarity:'rare', desc:'현명한 소비 자만이 다룰 수 있는 카드입니다.', img:'https://cdn-icons-png.flaticon.com/512/633/633461.png'},
-                {id:'d2_r2', name:'광고 제거 실드', rarity:'rare', desc:'기만적 마케팅으로부터 당신을 보호합니다.', img:'https://cdn-icons-png.flaticon.com/512/2092/2092215.png'},
-                {id:'d2_r3', name:'진실의 돋보기', rarity:'rare', desc:'약관 속의 다크 패턴을 찾아내는 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/158/158740.png'},
-                {id:'d2_r4', name:'디지털 보안 키', rarity:'rare', desc:'개인 정보 보관함을 여는 유일한 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/3064/3064197.png'},
-                {id:'d2_r5', name:'상거래법 법전', rarity:'rare', desc:'소비자의 권리를 지켜주는 든든한 지식입니다.', img:'https://cdn-icons-png.flaticon.com/512/3429/3429149.png'},
-                {id:'d2_r6', name:'기업의 비밀장부', rarity:'rare', desc:'교활한 전략이 적혀있는 금지된 기록입니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
-                {id:'d2_e1', name:'황금 장부', rarity:'epic', desc:'정직한 거래만을 기록해온 황금 기록물입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039480.png'},
-                {id:'d2_e2', name:'나일강의 보석', rarity:'epic', desc:'탐욕을 버리고 지혜를 얻은 자의 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039460.png'},
-                {id:'d2_e3', name:'영원한 계약 펜', rarity:'epic', desc:'돌이킬 수 없는 계약의 무서움을 경고합니다.', img:'https://cdn-icons-png.flaticon.com/512/2303/2303914.png'},
-                {id:'d2_e4', name:'디지털 스카라베', rarity:'epic', desc:'온라인 세계의 질서를 바로잡는 상징입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039487.png'},
-                {id:'d2_l1', name:'라의 진실 구체', rarity:'legendary', desc:'다크 패턴을 꿰뚫어 보는 강렬한 빛입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039471.png'},
-                {id:'d2_l2', name:'지혜의 앙크', rarity:'legendary', desc:'영원한 지혜를 주는 고대의 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/1553/1553878.png'}
-            ]
-        };
+    1: [
+        {id:'d1_n1', name:'부드러운 나뭇잎', rarity:'normal', desc:'아기 사슴이 가장 좋아하던 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/892/892926.png'},
+        {id:'d1_n2', name:'자원봉사 조끼', rarity:'normal', desc:'땀과 보람이 배어있는 낡은 조끼입니다.', img:'https://cdn-icons-png.flaticon.com/512/2503/2503223.png'},
+        {id:'d1_n3', name:'사료 주머니', rarity:'normal', desc:'동물들의 배고픔을 달래주던 주머니입니다.', img:'https://cdn-icons-png.flaticon.com/512/616/616456.png'},
+        {id:'d1_n4', name:'구조용 밧줄', rarity:'normal', desc:'위험에 빠진 동물을 끌어올릴 때 쓰던 줄입니다.', img:'https://cdn-icons-png.flaticon.com/512/1243/1243936.png'},
+        {id:'d1_n5', name:'물그릇', rarity:'normal', desc:'탈수된 새들에게 생명수가 되어준 그릇입니다.', img:'https://cdn-icons-png.flaticon.com/512/3002/3002651.png'},
+        {id:'d1_n6', name:'청소용 빗자루', rarity:'normal', desc:'깨끗한 서식지를 위해 쓰던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/911/911678.png'},
+        {id:'d1_n7', name:'방문객 출입증', rarity:'normal', desc:'평화를 약속한 사람만 가질 수 있는 증표입니다.', img:'https://cdn-icons-png.flaticon.com/512/2912/2912444.png'},
+        {id:'d1_n8', name:'아기동물 발자국', rarity:'normal', desc:'회복한 동물이 남기고 간 기분 좋은 흔적입니다.', img:'https://cdn-icons-png.flaticon.com/512/1077/1077196.png'},
+        {id:'d1_r1', name:'희귀 조류 깃털', rarity:'rare', desc:'하늘을 다시 날게 된 새가 남긴 선물입니다.', img:'https://cdn-icons-png.flaticon.com/512/4843/4843075.png'},
+        {id:'d1_r2', name:'구급 상자', rarity:'rare', desc:'상처받은 영혼까지 치료해주던 약상자입니다.', img:'https://cdn-icons-png.flaticon.com/512/2966/2966327.png'},
+        {id:'d1_r3', name:'탐험용 망원경', rarity:'rare', desc:'동물의 상태를 살필 때 쓰던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/618/618820.png'},
+        {id:'d1_r4', name:'서식지 지도', rarity:'rare', desc:'모든 동물이 자유로운 낙원의 설계도입니다.', img:'https://cdn-icons-png.flaticon.com/512/854/854878.png'},
+        {id:'d1_r5', name:'보호구역 뱃지', rarity:'rare', desc:'진정한 생명 수호자에게 수여되는 뱃지입니다.', img:'https://cdn-icons-png.flaticon.com/512/3135/3135868.png'},
+        {id:'d1_r6', name:'상아 파편', rarity:'rare', desc:'늙은 코끼리의 강인함이 담겨있습니다.', img:'https://cdn-icons-png.flaticon.com/512/2275/2275141.png'},
+        {id:'d1_e1', name:'바스텟 조각상', rarity:'epic', desc:'동물의 안녕을 지켜주는 여신상입니다.', img:'https://cdn-icons-png.flaticon.com/512/3504/3504153.png'},
+        {id:'d1_e2', name:'푸른 스카라베', rarity:'epic', desc:'재생을 상징하는 신성한 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039494.png'},
+        {id:'d1_e3', name:'황금 사탕수수', rarity:'epic', desc:'코끼리 몰리가 가장 아끼던 간식입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039474.png'},
+        {id:'d1_e4', name:'수의사의 일지', rarity:'epic', desc:'동물과 교감하는 비법이 적혀있습니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
+        {id:'d1_l1', name:'아누비스의 저울', rarity:'legendary', desc:'진실과 거짓을 가려내는 신의 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/1004/1004944.png'},
+        {id:'d1_l2', name:'호루스의 수호안', rarity:'legendary', desc:'모든 생명체를 악으로부터 지켜주는 문양입니다.', img:'https://cdn-icons-png.flaticon.com/512/3141/3141381.png'}
+    ],
+    2: [
+        {id:'d2_n1', name:'구겨진 영수증', rarity:'normal', desc:'충동구매의 흔적이 담긴 종이 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/1611/1611174.png'},
+        {id:'d2_n2', name:'할인 스티커', rarity:'normal', desc:'우리의 눈을 가렸던 유혹적인 스티커입니다.', img:'https://cdn-icons-png.flaticon.com/512/2522/2522204.png'},
+        {id:'d2_n3', name:'빈 장바구니', rarity:'normal', desc:'의도하지 않은 물건은 담지 않겠다는 의지입니다.', img:'https://cdn-icons-png.flaticon.com/512/1170/1170678.png'},
+        {id:'d2_n4', name:'동전 주머니', rarity:'normal', desc:'다크 패턴으로부터 지켜낸 소중한 가치입니다.', img:'https://cdn-icons-png.flaticon.com/512/218/218353.png'},
+        {id:'d2_n5', name:'마우스 포인터', rarity:'normal', desc:'속임수를 피해 정답을 찾아가던 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/1792/1692873.png'},
+        {id:'d2_n6', name:'광고 팝업 조각', rarity:'normal', desc:'시야를 방해하던 팝업창을 부수한 파편입니다.', img:'https://cdn-icons-png.flaticon.com/512/1265/1265775.png'},
+        {id:'d2_n7', name:'만료 경고장', rarity:'normal', desc:'사용자를 불안하게 만들던 교활한 문구입니다.', img:'https://cdn-icons-png.flaticon.com/512/564/564619.png'},
+        {id:'d2_n8', name:'데이터 조각', rarity:'normal', desc:'유출될 뻔한 개인 정보를 회수한 조각입니다.', img:'https://cdn-icons-png.flaticon.com/512/2103/2103633.png'},
+        {id:'d2_r1', name:'블랙 신용카드', rarity:'rare', desc:'현명한 소비자만이 다룰 수 있는 카드입니다.', img:'https://cdn-icons-png.flaticon.com/512/633/633461.png'},
+        {id:'d2_r2', name:'광고 제거 실드', rarity:'rare', desc:'기만적 마케팅으로부터 당신을 보호합니다.', img:'https://cdn-icons-png.flaticon.com/512/2092/2092215.png'},
+        {id:'d2_r3', name:'진실의 돋보기', rarity:'rare', desc:'약관 속의 다크 패턴을 찾아내는 도구입니다.', img:'https://cdn-icons-png.flaticon.com/512/158/158740.png'},
+        {id:'d2_r4', name:'디지털 보안 키', rarity:'rare', desc:'개인 정보 보관함을 여는 유일한 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/3064/3064197.png'},
+        {id:'d2_r5', name:'상거래법 법전', rarity:'rare', desc:'소비자의 권리를 지켜주는 든든한 지식입니다.', img:'https://cdn-icons-png.flaticon.com/512/3429/3429149.png'},
+        {id:'d2_r6', name:'기업의 비밀장부', rarity:'rare', desc:'교활한 전략이 적혀있는 금지된 기록입니다.', img:'https://cdn-icons-png.flaticon.com/512/3330/3330314.png'},
+        {id:'d2_e1', name:'황금 장부', rarity:'epic', desc:'정직한 거래만을 기록해온 황금 기록물입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039480.png'},
+        {id:'d2_e2', name:'나일강의 보석', rarity:'epic', desc:'탐욕을 버리고 지혜를 얻은 자의 보석입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039460.png'},
+        {id:'d2_e3', name:'영원한 계약 펜', rarity:'epic', desc:'돌이킬 수 없는 계약의 무서움을 경고합니다.', img:'https://cdn-icons-png.flaticon.com/512/2303/2303914.png'},
+        {id:'d2_e4', name:'디지털 스카라베', rarity:'epic', desc:'온라인 세계의 질서를 바로잡는 상징입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039487.png'},
+        {id:'d2_l1', name:'라의 진실 구체', rarity:'legendary', desc:'다크 패턴을 꿰뚫어 보는 강렬한 빛입니다.', img:'https://cdn-icons-png.flaticon.com/512/1039/1039471.png'},
+        {id:'d2_l2', name:'지혜의 앙크', rarity:'legendary', desc:'영원한 지혜를 주는 고대의 열쇠입니다.', img:'https://cdn-icons-png.flaticon.com/512/1553/1553878.png'}
+    ]
+};
 
         let state = {
             allData: [], sessionQuestions: [], region: '', unit: 1, difficulty: 'low',
@@ -271,35 +271,69 @@
         }
 
         function determineRelic() {
-            document.getElementById('chest-container').classList.remove('chest-shake');
-            const table = { low: [88, 10, 1, 1], mid: [59, 30, 10, 1], high: [30, 50, 15, 5] };
-            let prob = [...table[state.difficulty]];
-            let isPerfect = state.correctCount === 5;
-            if(isPerfect) { prob[2]*=2.5; prob[3]*=2; prob[0]=100-(prob[1]+prob[2]+prob[3]); }
-            const roll = Math.random() * 100;
-            let rarity = 'normal';
-            if(roll < prob[3]) rarity = 'legendary';
-            else if(roll < prob[3]+prob[2]) rarity = 'epic';
-            else if(roll < prob[3]+prob[2]+prob[1]) rarity = 'rare';
-            const pool = RELICS_DATA[state.unit].filter(r => r.rarity === rarity);
-            const relic = pool[Math.floor(Math.random() * pool.length)];
-            state.inventory[relic.id] = (state.inventory[relic.id] || 0) + 1;
-            localStorage.setItem('relic_inv_v5', JSON.stringify(state.inventory));
-            const colors = { normal:'#4ade80', rare:'#60a5fa', epic:'#c084fc', legendary:'#facc15' };
-            document.getElementById('light-aura').style.backgroundColor = colors[rarity];
-            document.getElementById('light-aura').style.opacity = '1';
-            if(isPerfect) confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 } });
-            if(rarity === 'legendary') { document.body.classList.add('screen-shake'); confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors:['#facc15','#ffffff'] }); }
-            document.getElementById('reward-msg').innerHTML = `
-                <div class="bg-white/10 p-4 rounded-xl border-2 border-dashed mt-4 animate-bounce">
-                    <img src="${relic.img}" class="h-20 mx-auto mb-2">
-                    <p class="text-xl font-bold" style="color:${colors[rarity]}">[${rarity.toUpperCase()}]</p>
-                    <p class="text-2xl mb-2">${relic.name}</p>
-                    <p class="text-sm text-slate-300 italic">"${relic.desc}"</p>
-                </div>
-                <button onclick="location.reload()" class="mt-8 bg-yellow-500 text-black px-10 py-3 rounded-full font-bold shadow-xl">항구로 복귀</button>
-            `;
-        }
+    document.getElementById('chest-container').classList.remove('chest-shake');
+    
+    // 1. 확률표 설정 및 PERFECT 보너스 계산 (기존과 동일)
+    const table = { low: [88, 10, 1, 1], mid: [59, 30, 10, 1], high: [30, 50, 15, 5] };
+    let prob = [...table[state.difficulty]];
+    let isPerfect = state.correctCount === 5;
+    if(isPerfect) { 
+        prob[2]*=2.5; prob[3]*=2; 
+        prob[0]=Math.max(0, 100-(prob[1]+prob[2]+prob[3])); 
+    }
+
+    // 2. 등급 결정 (가챠 굴리기)
+    const roll = Math.random() * 100;
+    let rarity = 'normal';
+    if(roll < prob[3]) rarity = 'legendary';
+    else if(roll < prob[3]+prob[2]) rarity = 'epic';
+    else if(roll < prob[3]+prob[2]+prob[1]) rarity = 'rare';
+
+    // 3. [핵심] 스마트 루팅 (Smart Looting) 시스템
+    // 일단 결정된 등급에서 아직 3번 안 채워진 렐릭이 있는지 찾습니다.
+    let pool = RELICS_DATA[state.unit].filter(r => r.rarity === rarity && (state.inventory[r.id] || 0) < 3);
+
+    // 만약 해당 등급이 이미 꽉 찼다면? 
+    // 등급 상관없이 "아직 3번을 못 채운 모든 렐릭(상위 등급 포함)" 중에서 하나를 골라줍니다.
+    if (pool.length === 0) {
+        pool = RELICS_DATA[state.unit].filter(r => (state.inventory[r.id] || 0) < 3);
+    }
+
+    // 만약 단원 전체(20종)를 3번씩 다 모았다면? (완전 마스터)
+    if (pool.length === 0) {
+        console.log("해당 단원 렐릭 완전 마스터!");
+        pool = RELICS_DATA[state.unit]; // 이때부터는 다시 모든 렐릭이 나옵니다.
+    }
+
+    // 4. 최종 렐릭 결정 및 저장
+    const relic = pool[Math.floor(Math.random() * pool.length)];
+    state.inventory[relic.id] = (state.inventory[relic.id] || 0) + 1;
+    localStorage.setItem('relic_inv_v5', JSON.stringify(state.inventory));
+
+    // 5. 연출 실행 (아우라 색상은 실제 뽑힌 렐릭 등급에 맞춤)
+    const colors = { normal:'#4ade80', rare:'#60a5fa', epic:'#c084fc', legendary:'#facc15' };
+    const currentRarity = relic.rarity;
+    document.getElementById('light-aura').style.backgroundColor = colors[currentRarity];
+    document.getElementById('light-aura').style.opacity = '1';
+
+    if(isPerfect) confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 } });
+    if(currentRarity === 'legendary') { 
+        document.body.classList.add('screen-shake'); 
+        confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors:['#facc15','#ffffff'] }); 
+    }
+
+    // 6. 화면 메시지 출력
+    document.getElementById('reward-msg').innerHTML = `
+        ${isPerfect ? '<p class="text-2xl font-bold text-yellow-400 mb-2 animate-bounce">✨ PERFECT! 수집 가속 보너스! ✨</p>' : ''}
+        <div class="bg-white/10 p-4 rounded-xl border-2 border-dashed mt-4 animate-bounce">
+            <img src="${relic.img}" class="h-20 mx-auto mb-2">
+            <p class="text-xl font-bold" style="color:${colors[currentRarity]}">[${currentRarity.toUpperCase()}]</p>
+            <p class="text-2xl mb-2">${relic.name}</p>
+            <p class="text-sm text-slate-300 italic">"${relic.desc}"</p>
+        </div>
+        <button onclick="location.reload()" class="mt-8 bg-yellow-500 text-black px-10 py-3 rounded-full font-bold shadow-xl">항구로 복귀</button>
+    `;
+}
 
         function showCollection() {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
